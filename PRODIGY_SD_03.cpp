@@ -264,10 +264,11 @@ int main()
 
 	cout << "Welcome to our Contact Management System\n\n";
 	/*TODO: Retreiveing elements from text file*/
+
 	do {
 
 
-		cout << "Please Enter a number from this menu:\n";
+		cout << "Please Enter a number from this menu:\n\n";
 		cout << "1. Add a new contact\n" /*done*/
 			"2. Edit an existing contact\n"
 			"3. Add info of Contact\n"
@@ -276,7 +277,7 @@ int main()
 			"6. Display info of contact\n"
 			"7. Search for a contact\n"
 			"8. Exit\n";
-		cout << endl << endl;
+		cout << endl ;
 
 		cin >> choice;
 
