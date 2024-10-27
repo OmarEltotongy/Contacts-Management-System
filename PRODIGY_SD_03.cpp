@@ -15,12 +15,10 @@ using namespace std;
 string phone_check(string& phone);
 
 /*Global Variables*/
-int ending_flag = 1;
 string first_name;
 string last_name;
 string phone_number;
 string email;
-
 
 /*Classes*/
 class Contact
@@ -31,15 +29,14 @@ public:
 	string last_name = "";
 	string phone_number = "";
 	string email_address = "";
+	static int Class_index;
+	string index_str = "";
 
 	/*Constructor with Intialization to creat new contact*/
-	Contact()
-	{
-		first_name = "New";
-		last_name = "Contact";
-		phone_number = "00000000000000";
-		email_address = "new_contact@me";
+	Contact() : first_name("New " + to_string(Class_index)), last_name("Contact " + to_string(Class_index)), phone_number(string(14, '0')), email_address("new_contact@me" + to_string(Class_index)) {
+		Class_index++;
 	}
+
 	Contact(string first_name, string last_name, string phone_num, string email)
 		: first_name{ first_name }, last_name{ last_name }, phone_number{ phone_num }, email_address{ email }
 	{
@@ -250,10 +247,13 @@ public:
 	}
 
 };
-
+  
+/*Intialzation of static counter*/
+int Contact::Class_index = 0;
 
 int main()
 {
+	int ending_flag = 1;
 	// Creating a vector to store multiple contacts
 	vector<Contact> contact_list;
 	int choice = 0;
@@ -343,9 +343,16 @@ int main()
 		case 3: /*Add info of Contact*/
 			cout << "Please, enter the index of the contact u want to edit.\nI will show u the list of the contacts:\n\n";
 			Contact::ViewAllContact(contact_list);
-			cout << endl << endl;
+			cout << endl ;
+			cout << "Index: ";
 			cin >> index;
 			cout << endl << endl;
+
+			if (index < 0 || index >= contact_list.size()) {
+				cout << "Invalid index!" << endl;
+				break;
+			}
+
 
 			Contact::EditNewContact(contact_list, index);
 			break;
