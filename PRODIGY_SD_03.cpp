@@ -9,9 +9,14 @@
 #include <string>
 #include <vector>
 #include <limits>
+#include <fstream> // For file input/output
+#include <sstream> // For parsing the line
+#include <algorithm> // For std::all_of
+#include <cctype>    // For ::isdigit
+
 
 using namespace std;
-/*Function Protoyptes*/
+/*Function Protoyptes for class*/
 string phone_check(string& phone);
 
 /*Global Variables*/
@@ -24,24 +29,25 @@ string email;
 class Contact
 {
 public:
-
-	string first_name = "";
-	string last_name = "";
-	string phone_number = "";
-	string email_address = "";
+	int id;
+	string first_name;
+	string last_name;
+	string phone_number;
+	string email_address;
 	static int Class_index;
-	string index_str = "";
+	string index_str;
 
 	/*Constructor with Intialization to creat new contact*/
-	Contact() : first_name("New " + to_string(Class_index)), last_name("Contact " + to_string(Class_index)), phone_number(string(14, '0')), email_address("new_contact@me" + to_string(Class_index)) {
+	Contact() : id(Class_index), first_name("New "), last_name("Contact" + to_string(Class_index)), phone_number(string(14, '0')), email_address("new_contact@me" + to_string(Class_index)) {
 		Class_index++;
 	}
 
 	Contact(string first_name, string last_name, string phone_num, string email)
-		: first_name{ first_name }, last_name{ last_name }, phone_number{ phone_num }, email_address{ email }
+		: id(Class_index), first_name{ first_name }, last_name{ last_name }, phone_number{ phone_num }, email_address{ email }
 	{
-
+		Class_index++;
 	}
+
 
 	/*Methods*/
 
@@ -218,18 +224,67 @@ public:
 	}
 
 	/*Delete contact by searching for his phone number and return with status of delete*/
-	static bool DeleteContact(vector<Contact>& contact_list, string& phone_num)
+	static bool DeleteContact(vector<Contact>& contact_list)
 	{
-		int index = SearchForContact(contact_list, phone_num);
-
-		// Check if contact was found
-		if (index == -1) {
-			cout << "Contact not found.\n";
-			return false;
+		char answer;
+		int index;
+		string phone_number;
+		cout << "Is the contact have info or empty? (press i for info and e for empty): ";
+		while (!(cin >> answer) || (answer != 'i' && answer != 'e'))
+		{
+			cout << "Invalid input. Please enter 'i' or 'e'.\n";
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		}
-		contact_list.erase(contact_list.begin() + index);  // Erase element at index
-		cout << "Deletion is done\n\n";
-		return true;
+		if (answer == 'i')
+		{
+			cout << "Please enter a phone number to search with (included the global code): ";
+			cin >> phone_number;
+			cout << endl << endl;
+
+			phone_number = phone_check(phone_number);
+
+			int index = SearchForContact(contact_list, phone_number);
+
+			// Check if contact was found
+			if (index == -1) {
+				cout << "Contact not found.\n";
+				return false;
+			}
+
+			cout << endl << endl;
+			contact_list.erase(contact_list.begin() + index);  // Erase element at index
+			cout << "Deletion is done\n\n";
+
+			return true;
+
+
+		}
+		if (answer == 'e')
+		{
+			cout << "Please, enter the index of the contact u want to delete.\nI will show u the list of the contacts:\n\n";
+			ViewAllContact(contact_list);
+			cout << endl;
+			cout << "Index: ";
+			cin >> index;
+			cout << endl;
+
+			if (index < 0 || index >= contact_list.size()) {
+				cout << "Invalid index!" << endl;
+				return false;
+
+			}
+			else
+			{
+
+				cout << endl;
+				contact_list.erase(contact_list.begin() + index);  // Erase element at index
+				cout << "Deletion is done\n\n";
+				return true;
+			}
+
+		}
+
 
 	}
 
@@ -247,7 +302,11 @@ public:
 	}
 
 };
-  
+
+/*Function Protoyptes for program*/
+
+void retrieve_contacts(vector<Contact>& contact_list);
+
 /*Intialzation of static counter*/
 int Contact::Class_index = 0;
 
@@ -263,7 +322,10 @@ int main()
 
 
 	cout << "Welcome to our Contact Management System\n\n";
-	/*TODO: Retreiveing elements from text file*/
+
+	retrieve_contacts(contact_list);
+	add_counter = Contact::Class_index;
+
 
 	do {
 
@@ -277,7 +339,7 @@ int main()
 			"6. Display info of contact\n"
 			"7. Search for a contact\n"
 			"8. Exit\n";
-		cout << endl ;
+		cout << endl;
 
 		cin >> choice;
 
@@ -344,7 +406,7 @@ int main()
 		case 3: /*Add info of Contact*/
 			cout << "Please, enter the index of the contact u want to edit.\nI will show u the list of the contacts:\n\n";
 			Contact::ViewAllContact(contact_list);
-			cout << endl ;
+			cout << endl;
 			cout << "Index: ";
 			cin >> index;
 			cout << endl << endl;
@@ -359,12 +421,8 @@ int main()
 			break;
 
 		case 4: /*Delete Contact*/
-			cout << "Please enter a phone number to search with (included the global code): ";
-			cin >> phone_number;
-			cout << endl << endl;
 
-			phone_number = phone_check(phone_number);
-			Contact::DeleteContact(contact_list, phone_number);
+			Contact::DeleteContact(contact_list);
 			add_counter--;
 
 			break;
@@ -424,8 +482,31 @@ int main()
 
 		case 8: /*Exit*/
 			cout << "Good luck, see u soon\n\n";
-			/*TODO: Storing elements in text file*/
 
+			// Open a file for writing
+			ofstream outfile("contacts.txt", ios::trunc);
+
+			// Check if the file is open
+			if (!outfile.is_open()) {
+				cout << "Error: Could not open file for saving contacts.\n";
+				break;
+			}
+
+			// Loop through the contact list and write each contact's details to the file
+			for (const auto& contact : contact_list) {
+				outfile << contact.id + 1 << ") Name: " << contact.first_name << " "
+					<< contact.last_name << " Phone: "
+					<< contact.phone_number << " Email: "
+					<< contact.email_address << "\n";
+			}
+
+
+
+
+			// Close the file
+			outfile.close();
+
+			cout << "Contacts saved successfully!\n";
 			ending_flag = 0;
 			break;
 		}
@@ -437,18 +518,44 @@ int main()
 
 string phone_check(string& phone)
 {
-	if (phone.size() == 14)
-	{
-		return phone;
+	while (phone.size() != 14 || !std::all_of(phone.begin(), phone.end(), ::isdigit)) {
+		cout << "Please enter a valid phone number with 14 digits (global code included) and numeric only: ";
+		cin >> phone;
+		cout << endl;
 	}
-	else
-	{
-		while (phone.size() != 14)
-		{
-			cout << "Please enter a valid phone number with 14 digit (global code included): ";
-			cin >> phone;
-			cout << endl;
-		}
-		return phone;
+	return phone;
+}
+
+void retrieve_contacts(vector<Contact>& contact_list) {
+	ifstream infile("contacts.txt");
+
+	if (!infile.is_open()) {
+		cout << "No Contacts are found\n";
+		return;
 	}
+
+	string line;
+	while (getline(infile, line)) {
+		stringstream ss(line);
+
+		// Variables to hold extracted values
+		int id;
+		string temp, first_name, last_name, phone_number, email;
+
+		// Parse the line
+		ss >> id;              // Read contact ID (1)
+		ss.ignore(2);           // Ignore ") "
+		ss >> temp >> first_name >> last_name;  // Read "Name: First Last"
+		ss.ignore(8);           // Ignore ", Phone: "
+		ss >> phone_number;     // Read phone number
+		ss.ignore(8);           // Ignore ", Email: "
+		ss >> email;            // Read email address
+
+		// Add the contact to the list
+		contact_list.push_back(Contact(first_name, last_name, phone_number, email));
+	}
+
+	cout << contact_list.size() << " contacts retrieved from file.\n\n";
+
+	infile.close();
 }
