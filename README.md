@@ -39,7 +39,7 @@ The `Contact` class represents each contact with attributes:
 
 ### Usage
 
-1. Compile and run `PRODIGY_SD_03.cpp`.
+1. Compile and run `ContactsManagementSystem.cpp`.
 2. Use the menu to perform contact operations:
    - **1**: Add a new contact
    - **2**: Edit an existing contact
