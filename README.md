@@ -56,6 +56,3 @@ The `Contact` class represents each contact with attributes:
 - **C++11** or higher
 - **Compiler**: Any C++ compiler (g++, clang, etc.)
 
-### Author
-Created by **Omar Eltoutongy** on Oct 26, 2024.
-
