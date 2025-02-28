@@ -13,7 +13,7 @@ This program is a console-based Contact Management System written in C++. It all
 - **Load Contacts**: Load contacts from `contacts.txt` at program start.
 
 ### File Structure
-- **PRODIGY_SD_03.cpp**: Contains all code for managing contacts, including a `Contact` class and functions to support contact operations.
+- **ContactsManagementSystem.cpp**: Contains all code for managing contacts, including a `Contact` class and functions to support contact operations.
 - **contacts.txt**: Stores contact data persistently in a simple format for reloading contacts upon program restart.
 
 ### Key Classes and Functions
